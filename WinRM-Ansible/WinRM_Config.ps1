@@ -9,7 +9,6 @@
 # pip install "pywinrm>=0.3.0"
 
 
-
 # ------------------------
 # Dependencies check
 # ------------------------
