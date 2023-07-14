@@ -1,4 +1,4 @@
-﻿#WinRM Configuration/Documentation script for ansible
+﻿#WinRM Configuration Documentation for ansible
 
 # Référence:
 # https://docs.ansible.com/ansible/latest/os_guide/windows_winrm.html
@@ -7,6 +7,10 @@
 
 # Ansible winrm package need to be installed on ansible sever
 # pip install "pywinrm>=0.3.0"
+
+# The ansible.windows collection need to be installed on ansible server
+# ansible-galaxy collection install ansible.windows
+
 
 
 # ------------------------
@@ -48,7 +52,6 @@ Set-ItemProperty -Path $reg_winlogon_path -Name AutoAdminLogon -Value 0
 Remove-ItemProperty -Path $reg_winlogon_path -Name DefaultUserName -ErrorAction SilentlyContinue
 Remove-ItemProperty -Path $reg_winlogon_path -Name DefaultPassword -ErrorAction SilentlyContinue
 
-
 # -----------
 # WinRM Setup
 # -----------
@@ -58,26 +61,25 @@ Remove-ItemProperty -Path $reg_winlogon_path -Name DefaultPassword -ErrorAction 
 # the listener and the service configuration settings
 
 
+
 #----------------
 # WinRM Listener
 #----------------
-
 # The WinRM services listen for requests on one or more ports. Each of these ports must have a listener created and configured.
 
 # To view the current listeners that are running on the WinRM service:
 winrm enumerate winrm/config/Listener
 
 
-	# Transport: Whether the listener is run over HTTP or HTTPS. We recommend you use a listener over HTTPS because the data is encrypted without any further changes required.
+# Transport: Whether the listener is run over HTTP or HTTPS. We recommend you use a listener over HTTPS because the data is encrypted without any further changes required.
 
-	# Port: The port the listener runs on. By default it is 5985 for HTTP and 5986 for HTTPS. This port can be changed to whatever is required and corresponds to the host var ansible_port.
+# Port: The port the listener runs on. By default it is 5985 for HTTP and 5986 for HTTPS. This port can be changed to whatever is required and corresponds to the host var ansible_port.
 
-	# URLPrefix: The URL prefix to listen on. By default it is wsman. If you change this option, you need to set the host var ansible_winrm_path to the same value.
+# URLPrefix: The URL prefix to listen on. By default it is wsman. If you change this option, you need to set the host var ansible_winrm_path to the same value.
 
-	# CertificateThumbprint: If you use an HTTPS listener, this is the thumbprint of the certificate in the Windows Certificate Store that is used in the connection. To get the details of the certificate itself, run this command 	# with the relevant certificate thumbprint:
-	
-	$thumbprint = "E6CDAA82EEAF2ECE8546E05DB7F3E01AA47D76CE"
-	Get-ChildItem -Path cert:\LocalMachine\My -Recurse | Where-Object { $_.Thumbprint -eq $thumbprint } | Select-Object *
+# CertificateThumbprint: If you use an HTTPS listener, this is the thumbprint of the certificate in the Windows Certificate Store that is used in the connection. To get the details of the certificate itself, run this command with the relevant certificate thumbprint:
+$thumbprint = "E6CDAA82EEAF2ECE8546E05DB7F3E01AA47D76CE"
+Get-ChildItem -Path cert:\LocalMachine\My -Recurse | Where-Object { $_.Thumbprint -eq $thumbprint } | Select-Object *
 
 
 
@@ -87,7 +89,12 @@ winrm enumerate winrm/config/Listener
 
 # There are three ways to set up a WinRM listener:
 
-   # Using winrm quickconfig for HTTP or winrm quickconfig -transport:https for HTTPS. 
+   
+   # For HTTP
+   winrm qucikconfig
+   # For HTTPS 
+   winrm quickconfig -transport:https 
+   
    # This is the easiest option to use when running outside of a domain environment and a simple listener is required.
    # Unlike the other options, this process also has the added benefit of opening up the firewall for the ports required and starts the WinRM service.
 
@@ -112,6 +119,39 @@ New-WSManInstance -ResourceURI "winrm/config/Listener" -SelectorSet $selector_se
 # NOTE: When creating an HTTPS listener, you must create and store a certificate in the LocalMachine\My certificate store.
 
 
+#-----------------------------
+# WinRM authentication options
+# ----------------------------
+
+# When connecting to a Windows host, there are several different options that can be used when authenticating with an account.
+# The authentication type may be set on inventory hosts or groups with the ansible_winrm_transport variable.
+
+
+# The following matrix is a high level overview of the options:
+
+
+#   OPTION     LOCAL ACCOUNT   AD ACCOUNT    CREDENTIAL DELEGATION     HTTP ENCRYPTION
+#   Basic          YES            NO                 NO                      NO
+#   Certificate    YES            NO                 NO                      NO 
+#   Kerberos       YES            YES                YES                     YES
+#   NTLM           YES            YES                NO                      YES
+#   CredSSP        YES            YES                YES                     YES
+
+
+########
+# Basic
+########
+
+# Basic authentication is one of the simplest authentication options to use, but is also the most insecure. 
+# This is because the username and password are simply base64 encoded, and if a secure channel is not in use (eg, HTTPS) then it can be decoded by anyone.
+# Basic authentication can only be used for local accounts (not domain accounts).
+
+# NOTE: By default the variable "AllowUnencrypted = false"
+# You need to change it to True, otherwise you will get a crendential error message.
+    winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+
+# REMINDER: This is very unsecure practice.
+
 
 #----------------------
 # Delete WinRM Listener 
@@ -125,6 +165,8 @@ Get-ChildItem -Path WSMan:\localhost\Listener | Where-Object { $_.Keys -contains
 
 # Note: The Keys object is an array of strings, so it can contain different values.
 # By default, it contains a key for Transport= and Address= which correspond to the values from the winrm enumerate winrm/config/Listeners command.
+
+
 
 
 
@@ -177,15 +219,22 @@ Set-Item -Path WSMan:\localhost\Shell\MaxShellRunTime -Value 2147483647
 
 
 
+
+
+
+
 # ---------------------
 # Common WinRM Issues
 # --------------------- 
+
+
 
 
 # WinRM has a wide range of configuration options, which makes its configuration complex.
 # As a result, errors that Ansible displays could in fact be problems with the host setup instead.
 
 # To identify a host issue, run the following command from another Windows host to connect to the target Windows host.
+
 
 
 #    To test HTTP:
@@ -260,27 +309,25 @@ Invoke-Command -ComputerName server -UseSSL -ScriptBlock { ipconfig } -Credentia
 
 # When you communicate with the WinRM service on the host you can encounter some problems. Check the following to help the troubleshooting:
 
-#    The WinRM service is up and running on the host. Use the (Get-Service -Name winrm).Status command to get the status of the service.
+    # The WinRM service is up and running on the host. Use the (Get-Service -Name winrm).Status command to get the status of the service.
 
-#    The host firewall is allowing traffic over the WinRM port. By default this is 5985 for HTTP and 5986 for HTTPS.
+    # The host firewall is allowing traffic over the WinRM port. By default this is 5985 for HTTP and 5986 for HTTPS.
 
 # Sometimes an installer may restart the WinRM or HTTP service and cause this error. The best way to deal with this is to use the win_psexec module from another Windows host.
 # Failure to Load Builtin Modules
 
 # Sometimes PowerShell fails with an error message similar to:
 
- The 'Out-String' command was found in the module 'Microsoft.PowerShell.Utility', but the module could not be loaded.
+    # The 'Out-String' command was found in the module 'Microsoft.PowerShell.Utility', but the module could not be loaded.
 
-# In that case, there could be a problem when trying to access all the paths specified by the PSModulePath environment variable.
+    # In that case, there could be a problem when trying to access all the paths specified by the PSModulePath environment variable.
 
 # A common cause of this issue is that PSModulePath contains a Universal Naming Convention (UNC) path to a file share. Additionally, 
 # the double hop/credential delegation issue causes that the Ansible process cannot access these folders. To work around this problem is to either:
 
-#    Remove the UNC path from PSModulePath.
-
-# or
-
-#    Use an authentication option that supports credential delegation like credssp or kerberos. You need to have the credential delegation enabled.
+    # Remove the UNC path from PSModulePath. 
+    # or 
+    # Use an authentication option that supports credential delegation like credssp or kerberos. You need to have the credential delegation enabled.
 
 # See KB4076842 for more information on this problem.
 
