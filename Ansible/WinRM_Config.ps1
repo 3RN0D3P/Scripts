@@ -6,10 +6,10 @@
 
 
 # Ansible winrm package need to be installed on ansible sever
-# pip install "pywinrm>=0.3.0"
+  pip install "pywinrm>=0.3.0"
 
 # The ansible.windows collection need to be installed on ansible server
-# ansible-galaxy collection install ansible.windows
+  ansible-galaxy collection install ansible.windows
 
 
 
@@ -26,31 +26,31 @@
 # Use PowerShell commands to check the value of the Release entry of the HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full subkey.
 # The following examples check the value of the Release entry to determine whether .NET Framework 4.6.2 or later is installed. 
 # This code returns True if it's installed and False otherwise.
-(Get-ItemPropertyValue -LiteralPath 'HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full' -Name Release) -ge 394802
+ (Get-ItemPropertyValue -LiteralPath 'HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full' -Name Release) -ge 394802
 
 
 # WinRM Memory Hotfix for PS v3.0
 
 # On PowerShell v3.0, there is a bug that limits the amount of memory available to the WinRM service
 # Without this hotfix, Ansible fails to execute certain commands on the Windows host.
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-$url = "https://raw.githubusercontent.com/jborean93/ansible-windows/master/scripts/Install-WMF3Hotfix.ps1"
-$file = "$env:temp\Install-WMF3Hotfix.ps1"
+  [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+  $url = "https://raw.githubusercontent.com/jborean93/ansible-windows/master/scripts/Install-WMF3Hotfix.ps1"
+  $file = "$env:temp\Install-WMF3Hotfix.ps1"
 
-(New-Object -TypeName System.Net.WebClient).DownloadFile($url, $file)
-powershell.exe -ExecutionPolicy ByPass -File $file -Verbose
+  (New-Object -TypeName System.Net.WebClient).DownloadFile($url, $file)
+  powershell.exe -ExecutionPolicy ByPass -File $file -Verbose
 
 
 
 # As an optional but good security practice, you can set the execution policy back to the default.
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force
+  set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force
 
 
 # Remove auto logon
-$reg_winlogon_path = "HKLM:\Software\Microsoft\Windows NT\CurrentVersion\Winlogon"
-Set-ItemProperty -Path $reg_winlogon_path -Name AutoAdminLogon -Value 0
-Remove-ItemProperty -Path $reg_winlogon_path -Name DefaultUserName -ErrorAction SilentlyContinue
-Remove-ItemProperty -Path $reg_winlogon_path -Name DefaultPassword -ErrorAction SilentlyContinue
+  $reg_winlogon_path = "HKLM:\Software\Microsoft\Windows NT\CurrentVersion\Winlogon"
+  Set-ItemProperty -Path $reg_winlogon_path -Name AutoAdminLogon -Value 0
+  Remove-ItemProperty -Path $reg_winlogon_path -Name DefaultUserName -ErrorAction SilentlyContinue
+  Remove-ItemProperty -Path $reg_winlogon_path -Name DefaultPassword -ErrorAction SilentlyContinue
 
 # -----------
 # WinRM Setup
@@ -68,7 +68,7 @@ Remove-ItemProperty -Path $reg_winlogon_path -Name DefaultPassword -ErrorAction 
 # The WinRM services listen for requests on one or more ports. Each of these ports must have a listener created and configured.
 
 # To view the current listeners that are running on the WinRM service:
-winrm enumerate winrm/config/Listener
+  winrm enumerate winrm/config/Listener
 
 
 # Transport: Whether the listener is run over HTTP or HTTPS. We recommend you use a listener over HTTPS because the data is encrypted without any further changes required.
@@ -78,8 +78,8 @@ winrm enumerate winrm/config/Listener
 # URLPrefix: The URL prefix to listen on. By default it is wsman. If you change this option, you need to set the host var ansible_winrm_path to the same value.
 
 # CertificateThumbprint: If you use an HTTPS listener, this is the thumbprint of the certificate in the Windows Certificate Store that is used in the connection. To get the details of the certificate itself, run this command with the relevant certificate thumbprint:
-$thumbprint = "E6CDAA82EEAF2ECE8546E05DB7F3E01AA47D76CE"
-Get-ChildItem -Path cert:\LocalMachine\My -Recurse | Where-Object { $_.Thumbprint -eq $thumbprint } | Select-Object *
+  $thumbprint = "E6CDAA82EEAF2ECE8546E05DB7F3E01AA47D76CE"
+  Get-ChildItem -Path cert:\LocalMachine\My -Recurse | Where-Object { $_.Thumbprint -eq $thumbprint } | Select-Object *
 
 
 
@@ -113,6 +113,8 @@ $value_set = @{
 }
 
 New-WSManInstance -ResourceURI "winrm/config/Listener" -SelectorSet $selector_set -ValueSet $value_set
+
+
 
 # To see the other options with this PowerShell command, refer to the New-WSManInstance documentation.
 
@@ -150,7 +152,7 @@ New-WSManInstance -ResourceURI "winrm/config/Listener" -SelectorSet $selector_se
 # You need to change it to True, otherwise you will get a crendential error message.
     winrm set winrm/config/service '@{AllowUnencrypted="true"}'
 
-# REMINDER: This is very unsecure practice.
+# REMINDER: This is very unsecure.
 
 
 #----------------------
@@ -165,9 +167,6 @@ Get-ChildItem -Path WSMan:\localhost\Listener | Where-Object { $_.Keys -contains
 
 # Note: The Keys object is an array of strings, so it can contain different values.
 # By default, it contains a key for Transport= and Address= which correspond to the values from the winrm enumerate winrm/config/Listeners command.
-
-
-
 
 
 
@@ -219,14 +218,9 @@ Set-Item -Path WSMan:\localhost\Shell\MaxShellRunTime -Value 2147483647
 
 
 
-
-
-
-
 # ---------------------
 # Common WinRM Issues
 # --------------------- 
-
 
 
 
