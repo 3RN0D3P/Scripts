@@ -11,8 +11,6 @@
 # The ansible.windows collection need to be installed on ansible server
   ansible-galaxy collection install ansible.windows
 
-
-
 # ------------------------
 # Dependencies check
 # ------------------------
