@@ -1,29 +1,28 @@
-# 1 
-## 2 
-### 3 
-#### 4
-
 # WinRM Configuration Documentation for ansible
+
 
  Référence:
  https://docs.ansible.com/ansible/latest/os_guide/windows_winrm.html
  https://docs.ansible.com/ansible/latest/os_guide/windows_setup.html
 
-# Ansible winrm package need to be installed on ansible sever
-  pip install "pywinrm>=0.3.0"
 
-# The ansible.windows collection need to be installed on ansible server
-  ansible-galaxy collection install ansible.windows
+### Ansible WinRM package need to be installed on ansible sever
+    pip install "pywinrm>=0.3.0"
 
-# ------------------------
-# Dependencies check
-# ------------------------
+### The ansible.windows collection and community.windows need to be installed on ansible server
+ `ansible-galaxy collection install ansible.windows`
+ `ansible-galaxy collection install community.windows`
 
-# Ansible requires PowerShell version 3.0 and .NET Framework 4.0 or newer to function on older operating systems like Server 2008 and Windows 7.
-# The base image does not meet this requirement.
 
-# Get Powershell version
- ($PSVersionTable).PSVersion
+## ------------------------
+## Dependencies check
+## ------------------------
+
+### Ansible requires PowerShell version 3.0 and .NET Framework 4.0 or newer to function on older operating systems like Server 2008 and Windows 7.
+### The base image does not meet this requirement.
+
+### Get Powershell version
+    `($PSVersionTable).PSVersion`
 
 # Use PowerShell commands to check the value of the Release entry of the HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full subkey.
 # The following examples check the value of the Release entry to determine whether .NET Framework 4.6.2 or later is installed. 
