@@ -6,10 +6,10 @@
  https://docs.ansible.com/ansible/latest/os_guide/windows_setup.html
 
 
-### Ansible WinRM package need to be installed on ansible sever
+ Ansible WinRM package need to be installed on ansible sever
     pip install "pywinrm>=0.3.0"
 
-### The ansible.windows collection and community.windows need to be installed on ansible server
+ Both ansible.windows collection and community.windows need to be installed on ansible server
  `ansible-galaxy collection install ansible.windows`
  `ansible-galaxy collection install community.windows`
 
