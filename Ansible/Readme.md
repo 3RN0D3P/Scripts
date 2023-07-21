@@ -1,9 +1,13 @@
+# 1 
+## 2 
+### 3 
+#### 4
+
 # WinRM Configuration Documentation for ansible
 
-# Référence:
-# https://docs.ansible.com/ansible/latest/os_guide/windows_winrm.html
-# https://docs.ansible.com/ansible/latest/os_guide/windows_setup.html
-
+ Référence:
+ https://docs.ansible.com/ansible/latest/os_guide/windows_winrm.html
+ https://docs.ansible.com/ansible/latest/os_guide/windows_setup.html
 
 # Ansible winrm package need to be installed on ansible sever
   pip install "pywinrm>=0.3.0"
