@@ -9,7 +9,7 @@
  Ansible WinRM package need to be installed on ansible sever
     pip install "pywinrm>=0.3.0"
 
- Both ansible.windows collection and community.windows need to be installed on ansible server
+ Both ansible.windows collection and community.windows need to be installed on ansible server  
  `ansible-galaxy collection install ansible.windows`
  `ansible-galaxy collection install community.windows`
 
