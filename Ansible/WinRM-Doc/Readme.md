@@ -20,7 +20,7 @@
 ## Dependencies check
 
  Ansible requires PowerShell version 3.0 and .NET Framework 4.0 or newer to function on older operating systems like Server 2008 and Windows 7.
- The base image does not meet this requirement.
+
 
  Get Powershell version  
 `($PSVersionTable).PSVersion`
@@ -170,23 +170,30 @@ $value_set = @{
 
 You can control the behavior of the WinRM service component, including authentication options and memory settings.
 To get an output of the current service configuration options, run the following command: 
+
 `winrm get winrm/config/Service` 
 `winrm get winrm/config/Winrs`
 
 
-You do not need to change the majority of these options. However, some of the important ones to know about are:
+You do not need to change the majority of these options. 
+However, some of the important ones to know about are:
 
-Service\AllowUnencrypted - specifies whether WinRM will allow HTTP traffic without message encryption. Message level encryption is only possible when the ansible_winrm_transport variable is ntlm, kerberos or credssp. By default, this is false and you should only set it to true when debugging WinRM messages.
+    Service\AllowUnencrypted - specifies whether WinRM will allow HTTP traffic without message encryption. 
+    Message level encryption is only possible when the ansible_winrm_transport variable is ntlm, kerberos or credssp. By default, 
+    this is false and you should only set it to true when debugging WinRM messages.
 
-Service\Auth\* - defines what authentication options you can use with the WinRM service. By default, Negotiate (NTLM) and Kerberos are enabled.
+    Service\Auth\* - defines what authentication options you can use with the WinRM service. By default, Negotiate (NTLM) and Kerberos are enabled.
 
-Service\Auth\CbtHardeningLevel - specifies whether channel binding tokens are not verified (None), verified but not required (Relaxed), or verified and required (Strict). CBT is only used when connecting with NT LAN Manager (NTLM) or Kerberos over HTTPS.
+    Service\Auth\CbtHardeningLevel - specifies whether channel binding tokens are not verified (None), verified but not required (Relaxed), or verified and required (Strict). 
+    CBT is only used when connecting 
+    with NT LAN Manager (NTLM) or Kerberos over HTTPS.
 
-Service\CertificateThumbprint - thumbprint of the certificate for encrypting the TLS channel used with CredSSP authentication. By default, this is empty. A self-signed certificate is generated when the WinRM service starts and is used in the TLS process.
+    Service\CertificateThumbprint - thumbprint of the certificate for encrypting the TLS channel used with CredSSP authentication. By default, this is empty. A self-signed certificate is generated when the 
+    WinRM service starts and is used in the TLS process.**
 
-Winrs\MaxShellRunTime - maximum time, in milliseconds, that a remote command is allowed to execute.
+    Winrs\MaxShellRunTime - maximum time, in milliseconds, that a remote command is allowed to execute.
 
-Winrs\MaxMemoryPerShellMB - maximum amount of memory allocated per shell, including its child processes.
+    Winrs\MaxMemoryPerShellMB - maximum amount of memory allocated per shell, including its child processes.
 
 
 
@@ -194,6 +201,7 @@ Winrs\MaxMemoryPerShellMB - maximum amount of memory allocated per shell, includ
 To modify a setting under the Service key in PowerShell, you need to provide a path to the option after winrm/config/Service: 
 
 `Set-Item -Path WSMan:\localhost\Service\{path} -Value {some_value}`
+
 
  For example, to change Service\Auth\CbtHardeningLevel: 
 
@@ -259,55 +267,48 @@ Invoke-Command -ComputerName server -UseSSL -ScriptBlock { ipconfig } -Credentia
 
    For Basic or Certificate authentication, make sure that the user is a local account. Domain accounts do not work with Basic and Certificate authentication.
 
-# --------------
+
 # HTTP 500 Error
-# --------------
 
 
-# An HTTP 500 error indicates a problem with the WinRM service. You can check the following to troubleshoot:
+ An HTTP 500 error indicates a problem with the WinRM service. You can check the following to troubleshoot:
 
-#    The number of your currently open shells has not exceeded either WinRsMaxShellsPerUser. Alternatively, you did not exceed any of the other Winrs quotas.
+ The number of your currently open shells has not exceeded either WinRsMaxShellsPerUser. Alternatively, you did not exceed any of the other Winrs quotas.
 
 
-# ---------------
+
 # Timeout Errors
-# ---------------
 
 
-# Sometimes Ansible is unable to reach the host. These instances usually indicate a problem with the network connection. You can check the following to troubleshoot:
 
-#    The firewall is not set to block the configured WinRM listener ports.
+ Sometimes Ansible is unable to reach the host. These instances usually indicate a problem with the network connection. You can check the following to troubleshoot:
+ The firewall is not set to block the configured WinRM listener ports.
+ A WinRM listener is enabled on the port and path set by the host vars.
+ The winrm service is running on the Windows host and is configured for the automatic start.
 
-#    A WinRM listener is enabled on the port and path set by the host vars.
 
-#    The winrm service is running on the Windows host and is configured for the automatic start.
-
-# ------------------------
 # Connection Refused Errors
-# ------------------------
 
 
-# When you communicate with the WinRM service on the host you can encounter some problems. Check the following to help the troubleshooting:
 
-    # The WinRM service is up and running on the host. Use the (Get-Service -Name winrm).Status command to get the status of the service.
+ When you communicate with the WinRM service on the host you can encounter some problems. Check the following to help the troubleshooting:
+ The WinRM service is up and running on the host. Use the (Get-Service -Name winrm).Status command to get the status of the service.
 
-    # The host firewall is allowing traffic over the WinRM port. By default this is 5985 for HTTP and 5986 for HTTPS.
+ The host firewall is allowing traffic over the WinRM port. By default this is 5985 for HTTP and 5986 for HTTPS.
 
-# Sometimes an installer may restart the WinRM or HTTP service and cause this error. The best way to deal with this is to use the win_psexec module from another Windows host.
-# Failure to Load Builtin Modules
+ Sometimes an installer may restart the WinRM or HTTP service and cause this error. The best way to deal with this is to use the win_psexec module from another Windows host.
+ Failure to Load Builtin Modules
 
-# Sometimes PowerShell fails with an error message similar to:
+ Sometimes PowerShell fails with an error message similar to:
 
-    # The 'Out-String' command was found in the module 'Microsoft.PowerShell.Utility', but the module could not be loaded.
+  The 'Out-String' command was found in the module 'Microsoft.PowerShell.Utility', but the module could not be loaded.
 
-    # In that case, there could be a problem when trying to access all the paths specified by the PSModulePath environment variable.
+  In that case, there could be a problem when trying to access all the paths specified by the PSModulePath environment variable.
 
-# A common cause of this issue is that PSModulePath contains a Universal Naming Convention (UNC) path to a file share. Additionally, 
-# the double hop/credential delegation issue causes that the Ansible process cannot access these folders. To work around this problem is to either:
+ A common cause of this issue is that PSModulePath contains a Universal Naming Convention (UNC) path to a file share. Additionally, # the double hop/credential delegation issue causes that the Ansible process 
+ cannot access these folders. To work around this problem is to either:
 
-    # Remove the UNC path from PSModulePath. 
-    # or 
-    # Use an authentication option that supports credential delegation like credssp or kerberos. You need to have the credential delegation enabled.
+  Remove the UNC path from PSModulePath or  Use an authentication option that supports credential delegation like credssp or kerberos. You need to have the credential delegation enabled.
 
-# See KB4076842 for more information on this problem.
+ See KB4076842 for more information on this problem.
 
