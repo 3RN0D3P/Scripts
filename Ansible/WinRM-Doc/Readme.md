@@ -171,50 +171,48 @@ $value_set = @{
 You can control the behavior of the WinRM service component, including authentication options and memory settings.
 To get an output of the current service configuration options, run the following command: 
 
-`winrm get winrm/config/Service` 
+`winrm get winrm/config/Service`  
 `winrm get winrm/config/Winrs`
 
 
 You do not need to change the majority of these options. 
 However, some of the important ones to know about are:
 
-    Service\AllowUnencrypted - specifies whether WinRM will allow HTTP traffic without message encryption. 
-    Message level encryption is only possible when the ansible_winrm_transport variable is ntlm, kerberos or credssp. By default, 
-    this is false and you should only set it to true when debugging WinRM messages.
+**Service\AllowUnencrypted** - specifies whether WinRM will allow HTTP traffic without message encryption. 
+Message level encryption is only possible when the ansible_winrm_transport variable is ntlm, kerberos or credssp. By default, 
+this is false and you should only set it to true when debugging WinRM messages.
 
-    Service\Auth\* - defines what authentication options you can use with the WinRM service. By default, Negotiate (NTLM) and Kerberos are enabled.
+**Service\Auth** - defines what authentication options you can use with the WinRM service. By default, Negotiate (NTLM) and Kerberos are enabled.
 
-    Service\Auth\CbtHardeningLevel - specifies whether channel binding tokens are not verified (None), verified but not required (Relaxed), or verified and required (Strict). 
-    CBT is only used when connecting 
-    with NT LAN Manager (NTLM) or Kerberos over HTTPS.
+**Service\Auth\CbtHardeningLevel** - specifies whether channel binding tokens are not verified (None), verified but not required (Relaxed), or verified and required (Strict). 
+CBT is only used when connecting 
+with NT LAN Manager (NTLM) or Kerberos over HTTPS.
 
-    Service\CertificateThumbprint - thumbprint of the certificate for encrypting the TLS channel used with CredSSP authentication. By default, this is empty. A self-signed certificate is generated when the 
-    WinRM service starts and is used in the TLS process.**
+**Service\CertificateThumbprint** - thumbprint of the certificate for encrypting the TLS channel used with CredSSP authentication. By default, this is empty. A self-signed certificate is generated when the 
+WinRM service starts and is used in the TLS process.**
 
-    Winrs\MaxShellRunTime - maximum time, in milliseconds, that a remote command is allowed to execute.
+**Winrs\MaxShellRunTime** - maximum time, in milliseconds, that a remote command is allowed to execute.
 
-    Winrs\MaxMemoryPerShellMB - maximum amount of memory allocated per shell, including its child processes.
-
-
+**Winrs\MaxMemoryPerShellMB** - maximum amount of memory allocated per shell, including its child processes.
 
 
-To modify a setting under the Service key in PowerShell, you need to provide a path to the option after winrm/config/Service: 
 
+
+To modify a setting under the Service key in PowerShell, you need to provide a path to the option after winrm/config/Service:  
 `Set-Item -Path WSMan:\localhost\Service\{path} -Value {some_value}`
 
 
- For example, to change Service\Auth\CbtHardeningLevel: 
-
+ For example, to change Service\Auth\CbtHardeningLevel:  
 `Set-Item -Path WSMan:\localhost\Service\Auth\CbtHardeningLevel -Value Strict`
 
- To modify a setting under the Winrs key in PowerShell, you need to provide a path to the option after winrm/config/Winrs: 
-
+ To modify a setting under the Winrs key in PowerShell, you need to provide a path to the option after winrm/config/Winrs:  
 `Set-Item -Path WSMan:\localhost\Shell\{path} -Value {some_value}`
 
-For example, to change Winrs\MaxShellRunTime: 
-
+For example, to change Winrs\MaxShellRunTime:  
 `Set-Item -Path WSMan:\localhost\Shell\MaxShellRunTime -Value 2147483647`
 
+ 
+ 
  Note: If you run the command in a domain environment, some of these options are set by GPO and cannot be changed on the host itself. 
  When you configured a key with GPO, it contains the text [Source="GPO"] next to the value.
 
@@ -232,16 +230,15 @@ To identify a host issue, run the following command from another Windows host to
 
 
 ###    To test HTTP: 
-
 `winrs -r:http://server:5985/wsman -u:Username -p:Password ipconfig`
 
 ###    To test HTTPS: 
 
+The command will fail if the certificate is not verifiable.  
 `winrs -r:https://server:5986/wsman -u:Username -p:Password -ssl ipconfig`
-The command will fail if the certificate is not verifiable.
 
-To test HTTPS ignoring certificate verification: 
 
+To test HTTPS ignoring certificate verification:  
 `$username = "Username"
 $password = ConvertTo-SecureString -String "Password" -AsPlainText -Force
 $cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $username, $password
