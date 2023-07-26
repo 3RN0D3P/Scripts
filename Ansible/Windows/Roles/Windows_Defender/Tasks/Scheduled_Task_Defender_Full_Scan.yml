@@ -1,0 +1,23 @@
+---
+
+# Sheduled task will run on the 4th saturday of each months.
+
+
+      - hosts: all
+        tasks:
+          - name: Scheduled Task - Full Windows Defender Scan
+            win_scheduled_task:
+              name: WINDOWS_DEFENDER_FULL_SCAN_MONTHLY
+              actions:
+              - path: powershell
+                arguments: Start-MpScan -AsJob -ScanType FullScan 
+              triggers:
+              - type: monthlydow
+                months_of_year: ['January','February','March','April','May','June','July','August','September','October','November','December']
+                days_of_week: 'saturday'
+                weeks_of_month: 4
+              username: System
+              logon_type: password
+              run_level: highest
+
+
