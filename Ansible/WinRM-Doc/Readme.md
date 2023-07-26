@@ -3,17 +3,15 @@
 
  Référence:  
  https://docs.ansible.com/ansible/latest/os_guide/windows_winrm.html  
- https://docs.ansible.com/ansible/latest/os_guide/windows_setup.html  
-
-
+ https://docs.ansible.com/ansible/latest/os_guide/windows_setup.html
 
 ## Server Configuration ## 
 
- Ansible WinRM package need to be installed on the server.  
+ Ansible WinRM package need to be installed on the server.
  `pip install "pywinrm>=0.3.0"`
 
- Both ansible.windows collection and community.windows need to be installed.   
- `ansible-galaxy collection install ansible.windows`  
+ Both ansible.windows collection and community.windows need to be installed.  
+ `ansible-galaxy collection install ansible.windows`    
  `ansible-galaxy collection install community.windows`
 
 
@@ -87,12 +85,12 @@
 
 ## Setup WinRM Listener
 
-# There are three ways to set up a WinRM listener:
+### There are three ways to set up a WinRM listener:
 
    
-   ### For HTTP
+   ** For HTTP**
    winrm quickconfig
-   ### For HTTPS 
+   ** For HTTPS** 
    winrm quickconfig -transport:https 
    
    This is the easiest option to use when running outside of a domain environment and a simple listener is required.
@@ -156,10 +154,10 @@ $value_set = @{
 
 # Delete WinRM Listener 
 
- To remove all WinRM listeners:
+ To remove all WinRM listeners: 
 `Remove-Item -Path WSMan:\localhost\Listener\* -Recurse -Force`
 
- To remove only those listeners that run over HTTPS:
+ To remove only those listeners that run over HTTPS: 
  `Get-ChildItem -Path WSMan:\localhost\Listener | Where-Object { $_.Keys -contains "Transport=HTTPS" } | Remove-Item -Recurse -Force`
 
  Note: The Keys object is an array of strings, so it can contain different values.
@@ -171,7 +169,7 @@ $value_set = @{
 
 
 You can control the behavior of the WinRM service component, including authentication options and memory settings.
-To get an output of the current service configuration options, run the following command:
+To get an output of the current service configuration options, run the following command: 
 `winrm get winrm/config/Service` 
 `winrm get winrm/config/Winrs`
 
@@ -193,19 +191,19 @@ Winrs\MaxMemoryPerShellMB - maximum amount of memory allocated per shell, includ
 
 
 
-To modify a setting under the Service key in PowerShell, you need to provide a path to the option after winrm/config/Service:
+To modify a setting under the Service key in PowerShell, you need to provide a path to the option after winrm/config/Service: 
 
 `Set-Item -Path WSMan:\localhost\Service\{path} -Value {some_value}`
 
- For example, to change Service\Auth\CbtHardeningLevel:
+ For example, to change Service\Auth\CbtHardeningLevel: 
 
 `Set-Item -Path WSMan:\localhost\Service\Auth\CbtHardeningLevel -Value Strict`
 
- To modify a setting under the Winrs key in PowerShell, you need to provide a path to the option after winrm/config/Winrs:
+ To modify a setting under the Winrs key in PowerShell, you need to provide a path to the option after winrm/config/Winrs: 
 
 `Set-Item -Path WSMan:\localhost\Shell\{path} -Value {some_value}`
 
-For example, to change Winrs\MaxShellRunTime:
+For example, to change Winrs\MaxShellRunTime: 
 
 `Set-Item -Path WSMan:\localhost\Shell\MaxShellRunTime -Value 2147483647`
 
@@ -225,16 +223,16 @@ To identify a host issue, run the following command from another Windows host to
 
 
 
-###    To test HTTP:
+###    To test HTTP: 
 
 `winrs -r:http://server:5985/wsman -u:Username -p:Password ipconfig`
 
-###    To test HTTPS:
+###    To test HTTPS: 
 
 `winrs -r:https://server:5986/wsman -u:Username -p:Password -ssl ipconfig`
 The command will fail if the certificate is not verifiable.
 
-To test HTTPS ignoring certificate verification:
+To test HTTPS ignoring certificate verification: 
 
 `$username = "Username"
 $password = ConvertTo-SecureString -String "Password" -AsPlainText -Force
