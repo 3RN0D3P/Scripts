@@ -50,13 +50,13 @@
     - name: Create SnmpV3 User Account 
       ansible.builtin.command: '{{SNMPV3_READ_ONLY_ACCOUNT_VAR}}'
 
-    - name: Giving Rights to user 
+    - name: Giving full MIBS rights to user 
       ansible.builtin.lineinfile:
         path: /etc/snmp/snmpd.conf
         line: view all included .1 
         insertafter: 'view   systemonly  included   .1.3.6.1.2.1.25.1'
 
-    - name: Giving Rights to user 
+    - name: Link user to view
       ansible.builtin.lineinfile:
         path: /etc/snmp/snmpd.conf
         line: rouser snmpv3rouser authpriv -V all 
