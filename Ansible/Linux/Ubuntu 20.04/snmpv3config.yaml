@@ -3,7 +3,7 @@
 # First Step - Create vault 
 # ansible-vault create vault.txt
 
-# Second Step - edit the vault
+# Second Step - Edit the vault
 # ansible-vault edit vault.txt
 
 # Third Step - Add the create user command in vault
