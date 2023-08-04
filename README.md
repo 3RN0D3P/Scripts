@@ -1,2 +1,2 @@
 # Scripts
-This is a collections of scripts and documentations 
+This is my collections of scripts, playbooks and documentations 
