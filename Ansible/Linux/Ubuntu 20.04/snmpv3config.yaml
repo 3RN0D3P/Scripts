@@ -12,7 +12,8 @@
 # Fourth Step - Lauch the playbook specifying vault file and password 
 # ansible-playbook -i inventory --ask-vault-pass --extra-vars '@vault.txt' snmpv3config.yaml
 
-
+# References
+# https://docs.ansible.com/ansible/latest/vault_guide/vault_encrypting_content.html
 
 
 - hosts: snmpv3
