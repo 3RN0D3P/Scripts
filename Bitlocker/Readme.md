@@ -5,7 +5,7 @@ Voici le script PowerShell que j'ai créé pour automatiser le déploiement de B
 Ce script propose une solution efficace pour déployer BitLocker dans un environnement "on-premises". Il peut être intégré à une stratégie de groupe (GPO) afin de configurer les algorithmes de chiffrement et de garantir l'envoi sécurisé de la clé de récupération vers l'Active Directory.
 
 ##### Prérequis :  
- Le TPM doit être pris en charge et activé.
+ Le TPM doit être pris en charge et activé.  
 Pour vérifier si TPM est activé : `Get-Tpm`
 
 ##### Précisions :  
