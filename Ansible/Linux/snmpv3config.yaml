@@ -20,10 +20,8 @@
   tasks: 
     - name: Update repo cache and install all SNMPD packages and depedencies
       ansible.builtin.apt:
-        pkg:
-        - snmpd
-        - libsnmp-dev
-        update_cache: yes
+        name: snmpd
+        state: present
 
     - name: Stop SNMP Deamon
       ansible.builtin.systemd:
@@ -48,8 +46,6 @@
         regexp: '^agentaddress'
         line: agentaddress udp:161
 
-    - name: Create SnmpV3 User Account 
-      ansible.builtin.command: '{{SNMPV3_READ_ONLY_ACCOUNT_VAR}}'
 
     - name: Giving full MIBS rights to user 
       ansible.builtin.lineinfile:
@@ -62,6 +58,17 @@
         path: /etc/snmp/snmpd.conf
         line: rouser snmpv3rouser authpriv -V all 
        #line: rouser USERNAME Auth|priv|authpriv -V viewname
+    
+    - name: Create User
+      ansible.builtin.lineinfile:
+       path: /etc/snmp/snmpd.conf
+       line: createuser WUGSNMPRO1 SHA AUTHPASS AES PRIVPASS
+       # remplacer AUTHPASS et PRIVPASS par les bon credentials
+       
+       # Il est aussi possible de créer la variable dans la vault 
+       # ex:     SNMPV3_CREDS : createuser WUGSNMPRO1 SHA AUTHPASS AES PRIVPASS
+       # remplacer line par {{ SNMPV3_CREDS }}
+
 
     - name: Starting SNMP Deamon
       ansible.builtin.systemd:
