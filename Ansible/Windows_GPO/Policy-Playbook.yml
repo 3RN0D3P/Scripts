@@ -1,0 +1,79 @@
+---
+
+  - hosts: test
+   
+      
+    tasks:
+      - name: Accounts - Limit local account blank passwords
+        include_role:
+          name: Security_Options
+          tasks_from: "Accounts - Limit_Local_Account_Blank_Passwords.yml"
+        vars:
+           define: Enabled
+
+      - name: Network Access - Anonymous SID Name Translations
+        include_role:
+          name: Security_Options
+          tasks_from: "Network Access - Anonymous_SID_Name_Translations.yml"
+        vars:
+          define: Disabled
+
+      - name: Network Access - Do Not Allow Anonymous Enum SAM Accounts And Shares
+        include_role:
+          name: Security_Options
+          tasks_from: "Network Access - Do_Not_Allow_Anonymous_Enum_SAM_Accounts_And_Shares.yml"
+        vars:
+          define: Enabled
+
+      - name: Network Access - Do Not Allow Anonymous Enum SAM Accounts
+        include_role:
+          name: Security_Options
+          tasks_from: "Network Access - Do_Not_Allow_Anonymous_Enumeration_Of_SAM_Accounts.yml"
+        vars:
+          define: Enabled
+
+      - name: Network Access - Named Pipes that can be accessed anonymously
+        include_role:
+          name: Security_Options
+          tasks_from: "Network Access - Named_Pipes_That_Can_Be_Accessed_Anonymously.yml"
+
+
+      - name: Network Access - Remotely Accessible Registry Paths And Subpaths
+        include_role:
+          name: Security_Options
+          tasks_from: "Network Access - Remotely_Accessible_Registry_Paths_And_Subpaths.yml"
+
+
+      - name: Network Access - Remotely Accessible Registry Paths
+        include_role:
+          name: Security_Options
+          tasks_from: "Network Access - Remotely_Accessible_Registry_Paths.yml"
+
+
+      - name: Network Access - Restrict anonymous access to Named Pipes and Shares
+        include_role:
+          name: Security_Options
+          tasks_from: "Network Access - Restrict_Anonymous_Access_To_Named_Pipes_And_Shares.yml"
+        vars:
+          define: Enabled
+
+      - name: Network access -> Shares that can be accessed anonymously
+        include_role:
+          name: Security_Options
+          tasks_from: "Network Access - Shares_That_Can_Be_Accessed_Anonymously.yml"
+
+      - name: Network security -> Do not store LAN Manager hash value on next password change.
+        include_role:
+          name: Security_Options
+          tasks_from: "Network Security - Do_Not_Store_LAN_Manager_Hash_On_Password_Change.yml"
+        vars:
+          define: Enabled
+
+      - name: Recovery console -> Enable automatic administrative logon
+        include_role:
+          name: Security_Options
+          tasks_from: "Recovery Console - Disable_Automatic_Administrative_Logon.yml"
+        vars:
+          define: Disabled
+
+

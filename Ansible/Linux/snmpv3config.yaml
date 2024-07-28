@@ -1,0 +1,78 @@
+---
+
+# First Step - Create vault 
+# ansible-vault create vault.txt
+
+# Second Step - Edit the vault
+# ansible-vault edit vault.txt
+
+# Third Step - Add the create user command in vault
+# SNMPV3_READ_ONLY_ACCOUNT_VAR: "net-snmp-create-v3-user -ro -A AUTHPASSWORD -X PRIVPASSWORD -a SHA-512 -x AES USERNAME"
+
+# Fourth Step - Lauch the playbook specifying vault file and password 
+# ansible-playbook -i inventory --ask-vault-pass --extra-vars '@vault.txt' snmpv3config.yaml
+
+# References
+# https://docs.ansible.com/ansible/latest/vault_guide/vault_encrypting_content.html
+
+
+- hosts: snmpv3
+  tasks: 
+    - name: Update repo cache and install all SNMPD packages and depedencies
+      ansible.builtin.apt:
+        name: snmpd
+        state: present
+
+    - name: Stop SNMP Deamon
+      ansible.builtin.systemd:
+        state: stopped
+        name: snmpd
+
+    - name: Disabling rocommunity
+      ansible.builtin.replace:
+        path: /etc/snmp/snmpd.conf
+        regexp: '^rocommunity'
+        replace: '# rocommunity ' 
+
+    - name: Disabling rocommunity6
+      ansible.builtin.replace:
+        path: /etc/snmp/snmpd.conf
+        regexp: '^rocommunity6'
+        replace: '# rocommunity6 public default -V systemonly'
+
+    - name: Listen on UDP 161
+      ansible.builtin.lineinfile:
+        path: /etc/snmp/snmpd.conf
+        regexp: '^agentaddress'
+        line: agentaddress udp:161
+
+
+    - name: Giving full MIBS rights to user 
+      ansible.builtin.lineinfile:
+        path: /etc/snmp/snmpd.conf
+        line: view all included .1 
+        insertafter: 'view   systemonly  included   .1.3.6.1.2.1.25.1'
+
+    - name: Link user to view
+      ansible.builtin.lineinfile:
+        path: /etc/snmp/snmpd.conf
+        line: rouser snmpv3rouser authpriv -V all 
+       #line: rouser USERNAME Auth|priv|authpriv -V viewname
+    
+    - name: Create User
+      ansible.builtin.lineinfile:
+       path: /etc/snmp/snmpd.conf
+       line: createuser WUGSNMPRO1 SHA AUTHPASS AES PRIVPASS
+       # remplacer AUTHPASS et PRIVPASS par les bon credentials
+       
+       # Il est aussi possible de créer la variable dans la vault 
+       # ex:     SNMPV3_CREDS : createuser WUGSNMPRO1 SHA AUTHPASS AES PRIVPASS
+       # remplacer line par {{ SNMPV3_CREDS }}
+
+
+    - name: Starting SNMP Deamon
+      ansible.builtin.systemd:
+        state: started
+        enabled: true
+        name: snmpd
+        

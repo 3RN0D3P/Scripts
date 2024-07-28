@@ -1,0 +1,26 @@
+---
+
+# This will create a scheduled task.
+# The task will run each 2 weeks.
+# The start time is triggered by the start_boundary time.
+# The reccuring day is triggered by days_of_week.
+
+          - hosts: test
+            gather_facts: yes  #Build dictionary of ansible_facts
+            tasks:
+            - name: Scheduled Task - Full Windows Defender Scan - Defender CLI
+              win_scheduled_task:
+                name: WINDOWS_DEFENDER_FULL_SCAN_MONTHLY
+                actions:
+                - path: 'c:\Program Files\Windows Defender\MpRunCmd.exe'
+                  arguments: -Scan -ScanType 2   # 2 = Full 
+                triggers:
+                - type: monthlydow
+                  months_of_year: ['January','February','March','April','May','June','July','August','September','October','November','December']
+                  days_of_week: 'saturday'
+                  weeks_of_month: 4
+                  start_boundary: '2023-07-29T11:00:00'
+                  #start_boundary: '{ansible_date_time_iso8601}'
+                username: System
+                logon_type: password 
+                run_level: highest
